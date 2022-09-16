@@ -6,11 +6,13 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 import home from './Home'
+import search from './Search'
 
 //创建并导出 store
 export default new Vuex.Store({
   //实现Vue仓库模块式开发数据
   modules: {
     home,
+    search,
   },
 })

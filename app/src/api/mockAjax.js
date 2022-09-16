@@ -10,7 +10,7 @@ import 'nprogress/nprogress.css'
 //1.利用axios对象的方法create，去创建一个axios实例
 const requests = axios.create({
   //   //配置对象
-  baseURL: '/api',
+  baseURL: '/mock',
   //代表请求超时的时间5s
   timeout: 5000,
 })

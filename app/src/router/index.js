@@ -27,8 +27,8 @@ export default new VueRouter({
     },
     {
       name: 'search',
-      path: '/search',
-      // path: '/search/:keyword?', params 传参占位
+      //   path: '/search',
+      path: '/search/:keyword?', //params 传参占位
       component: Search,
     },
     {
@@ -41,7 +41,7 @@ export default new VueRouter({
     },
     //重定向：在项目跑起来时，访问立马定位到首页
     {
-      path: '/home',
+      path: '/#',
       redirect: 'home',
     },
   ],

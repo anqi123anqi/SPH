@@ -1,9 +1,9 @@
 <template>
     <div>
         <!-- 商品分类导航 -->
-        <div class="type-nav">
-            <div class="container">
-                <h2 class="all">全部商品分类</h2>
+        <div class="type-nav" @mouseleave="leaveshow">
+            <div class="container" @mouseleave="leaveIndex">
+                <h2 class="all" @mouseenter="entershow">全部商品分类</h2>
                 <nav class="nav">
                     <a href="###">服装城</a>
                     <a href="###">美妆馆</a>
@@ -15,37 +15,40 @@
                     <a href="###">秒杀</a>
                 </nav>
                 <!-- 三级联动 -->
-                <div class="sort">
-                    <!-- 利用事件的委托+编程式导航实现路由的传参和跳转 -->
-                    <div class="all-sort-list2" @click="goSearch">
-                        <div class="item bo" v-for="(c1,index) in categortyList.slice(0, 16) " :key="c1.categoryId"
-                            :class="{cur:currentIndex==index}">
-                            <h3 @mouseenter="changeIndex(index)" @mouseleave="leaveIndex">
-                                <a :data-categoryname="c1.categoryName"
-                                    :data-category1id="c1.categoryId">{{c1.categoryName}}</a>
-                            </h3>
-                            <!-- 二，三级分类 -->
-                            <div class="item-list clearfix" :style="{display:currentIndex==index?'block':'none'}">
-                                <div class="subitem" v-for="(c2) in c1.categoryChild" :key="c2.categoryId">
-                                    <dl class="fore">
-                                        <dt>
-                                            <a :data-categoryname="c2.categoryName"
-                                                :data-category2id="c2.categoryId">{{c2.categoryName}}</a>
-                                        </dt>
-                                        <dd>
-                                            <em>
-                                                <a v-for="c3 in c2.categoryChild" :data-categoryname="c3.categoryName"
-                                                    :key="c3.ategoryId"
-                                                    :data-category3id="c3.categoryId">{{c3.categoryName}}</a>
-                                            </em>
-                                        </dd>
-                                    </dl>
+                <!-- 动画过渡 -->
+                <transition name="sort">
+                    <div class="sort" v-if="show">
+                        <!-- 利用事件的委托+编程式导航实现路由的传参和跳转 -->
+                        <div class="all-sort-list2" @click="goSearch">
+                            <div class="item bo" v-for="(c1,index) in categortyList.slice(0, 16) " :key="c1.categoryId"
+                                :class="{cur:currentIndex==index}">
+                                <h3 @mouseenter="changeIndex(index)">
+                                    <a :data-categoryname="c1.categoryName"
+                                        :data-category1id="c1.categoryId">{{c1.categoryName}}</a>
+                                </h3>
+                                <!-- 二，三级分类 -->
+                                <div class="item-list clearfix" :style="{display:currentIndex==index?'block':'none'}">
+                                    <div class="subitem" v-for="(c2) in c1.categoryChild" :key="c2.categoryId">
+                                        <dl class="fore">
+                                            <dt>
+                                                <a :data-categoryname="c2.categoryName"
+                                                    :data-category2id="c2.categoryId">{{c2.categoryName}}</a>
+                                            </dt>
+                                            <dd>
+                                                <em>
+                                                    <a v-for="c3 in c2.categoryChild"
+                                                        :data-categoryname="c3.categoryName" :key="c3.ategoryId"
+                                                        :data-category3id="c3.categoryId">{{c3.categoryName}}</a>
+                                                </em>
+                                            </dd>
+                                        </dl>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
+                        </div>
                     </div>
-                </div>
+                </transition>
             </div>
         </div>
     </div>
@@ -58,13 +61,19 @@
         name: 'TypeNav',
         data () {
             return {
-                currentIndex: -1
+                currentIndex: -1,
+                show: true,
             }
         },
         mounted () {
-            // 通过Vuex发起请求，获取数据，存储在仓库中
-            this.$store.dispatch('home/CategortyList')
+            // // 通过Vuex发起请求，获取数据，存储在仓库中
+            // this.$store.dispatch('home/CategortyList')
             // ...mapActions('home', ['reqCategortyList']),
+
+            //当组件挂载完毕，判断当前路径是否为 search ，再看typenav显示否
+            if (this.$route.path != '/home') {
+                this.show = false
+            }
         },
         computed: {
             //对象写法：右侧需要一个函数，当使用这个计算属性时，就会执行一次
@@ -90,24 +99,36 @@
                     let query = { categoryName: categoryname }
                     //区分一级，二级，三级
                     if (category1id) {
-                        query.category1Id = category1id
+                        query.category1Id = category1id;
                     }
                     else if (category2id) {
-                        query.category2Id = category2id
+                        query.category2Id = category2id;
                     }
                     else if (category3id) {
-                        query.category3Id = category3id
+                        query.category3Id = category3id;
                     }
-                    //整理参数
-                    loaction.query = query;
-                    console.log(loaction);
+                    //判断：如果路由跳转时,params有参数，稍带过去
+                    if (this.$route.params) {
+                        loaction.params = this.$route.params;
+                    }
+                    //动态的给loaction传递query参数
+                    loaction.query = query
+                    // console.log(loaction);
                     //路由跳转
                     this.$router.push(loaction)
                 }
-
-
-
+            },
+            entershow () {
+                if (this.$route.path != '/home') {
+                    this.show = true
+                }
+            },
+            leaveshow () {
+                if (this.$route.path != '/home') {
+                    this.show = false
+                }
             }
+
         },
     }
 </script>
@@ -236,6 +257,21 @@
 
 
                 }
+            }
+
+            /* 过渡动画 */
+            /* 开始 */
+            .sort-enter {
+                height: 0;
+            }
+
+            /* 结束 */
+            .sort-enter-to {
+                height: 461px;
+            }
+
+            .sort-enter-active {
+                transition: all .5s linear;
             }
         }
     }
