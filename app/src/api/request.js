@@ -6,6 +6,7 @@ import nprogress from 'nprogress'
 import 'nprogress/nprogress.css'
 //start:进度条开始  done:进度条借结束
 // console.log(nprogress)
+import store from '../store'
 
 //1.利用axios对象的方法create，去创建一个axios实例
 const requests = axios.create({
@@ -17,6 +18,14 @@ const requests = axios.create({
 //请求拦截器：在发起请求之前，
 requests.interceptors.request.use((config) => {
   //config:配置对象，**headers请求头
+  if (store.state.detail.uuid_token) {
+    //请求头添加字段(userTempId)：已和后端协商完毕
+    config.headers.userTempId = store.state.detail.uuid_token
+  }
+  //需要携带token带给服务器
+  if(store.state.user.token){
+	config.headers.token = store.state.user.token
+  }
   //进度条开始
   nprogress.start()
   return config

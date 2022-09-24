@@ -7,6 +7,9 @@ Vue.use(Vuex)
 
 import home from './Home'
 import search from './Search'
+import detail from './Detail'
+import shopcart from './ShopCart'
+import user from './User'
 
 //创建并导出 store
 export default new Vuex.Store({
@@ -14,5 +17,8 @@ export default new Vuex.Store({
   modules: {
     home,
     search,
+    detail,
+    shopcart,
+	user,
   },
 })

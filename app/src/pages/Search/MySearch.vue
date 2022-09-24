@@ -35,24 +35,15 @@
                 <div class="details clearfix">
                     <div class="sui-navbar">
                         <div class="navbar-inner filter">
+                            <!-- 价格的解构 -->
                             <ul class="sui-nav">
-                                <li class="active">
-                                    <a href="#">综合</a>
+                                <li :class="{active:isOne}" @click="changeOrder('1')">
+                                    <a>综合<span v-show="isOne" class="iconfont"
+                                            :class="{'icon-direction-down':isAsc,'icon-direction-up':isDesc}"></span></a>
                                 </li>
-                                <li>
-                                    <a href="#">销量</a>
-                                </li>
-                                <li>
-                                    <a href="#">新品</a>
-                                </li>
-                                <li>
-                                    <a href="#">评价</a>
-                                </li>
-                                <li>
-                                    <a href="#">价格⬆</a>
-                                </li>
-                                <li>
-                                    <a href="#">价格⬇</a>
+                                <li :class="{active:isTwo}" @click="changeOrder('2')">
+                                    <a>价格<span v-show="isTwo" class="iconfont"
+                                            :class="{'icon-direction-down':isAsc,'icon-direction-up':isDesc}"></span></a>
                                 </li>
                             </ul>
                         </div>
@@ -62,7 +53,9 @@
                             <li class="yui3-u-1-5" v-for="goods in goodsList" :key="goods.id">
                                 <div class="list-wrap">
                                     <div class="p-img">
-                                        <a href="item.html" target="_blank"><img :src="goods.defaultImg" /></a>
+                                        <!-- 路由传参带params参数 -->
+                                        <router-link :to="`/detail/${goods.id}`"><img :src="goods.defaultImg" />
+                                        </router-link>
                                     </div>
                                     <div class="price">
                                         <strong>
@@ -88,35 +81,9 @@
 
                         </ul>
                     </div>
-                    <div class="fr page">
-                        <div class="sui-pagination clearfix">
-                            <ul>
-                                <li class="prev disabled">
-                                    <a href="#">«上一页</a>
-                                </li>
-                                <li class="active">
-                                    <a href="#">1</a>
-                                </li>
-                                <li>
-                                    <a href="#">2</a>
-                                </li>
-                                <li>
-                                    <a href="#">3</a>
-                                </li>
-                                <li>
-                                    <a href="#">4</a>
-                                </li>
-                                <li>
-                                    <a href="#">5</a>
-                                </li>
-                                <li class="dotted"><span>...</span></li>
-                                <li class="next">
-                                    <a href="#">下一页»</a>
-                                </li>
-                            </ul>
-                            <div><span>共10页&nbsp;</span></div>
-                        </div>
-                    </div>
+                    <!--分页器 -->
+                    <MyPagination :pageNo="searchParams.pageNo" :pageSize="searchParams.pageSize" :total="total"
+                        :continue="5" @getpageno="getpageno" />
                 </div>
             </div>
         </div>
@@ -125,13 +92,15 @@
 
 <script>
 
-    import { mapGetters, } from 'vuex';
+    import { mapGetters } from 'vuex';
 
     import SearchSelector from './SearchSelector/SearchSelector'
+    import MyPagination from '../../components/MyPagination'
     export default {
         name: 'MySearch',
         components: {
-            SearchSelector
+            SearchSelector,
+            MyPagination,
         },
         data () {
             return {
@@ -148,7 +117,7 @@
                     //关键字
                     "keyword": "",
                     //排序
-                    "order": "",
+                    "order": "1:asc",
                     //分页器：代表当前的页数
                     "pageNo": 1,
                     //每一页展示数据的个数
@@ -175,7 +144,15 @@
         },
         computed: {
             //...mapGetters:传递的数组，
-            ...mapGetters('search', ['goodsList', 'trademarkList', 'attrsList']),
+            ...mapGetters('search', ['goodsList', 'trademarkList', 'attrsList', 'total']),
+            // ...mapState('search', ['search']),
+            // ...mapState({
+            //     total: state => state.search.searchList.total
+            // }),
+            isOne () { return this.searchParams.order.indexOf('1') != -1 },
+            isTwo () { return this.searchParams.order.indexOf('2') != -1 },
+            isAsc () { return this.searchParams.order.indexOf('asc') != -1 },
+            isDesc () { return this.searchParams.order.indexOf('desc') != -1 },
         },
         methods: {
             //向服务器发起请求获取Search模块数据（根据参数不同返回不同的数据进行展示）
@@ -237,6 +214,35 @@
                 }
                 //再次发起请求
                 this.getData();
+            },
+            //排序问题
+            changeOrder (flag) {
+                //flag形参：一个标记，代表用户点击的是综合（1）还是 价格（2）
+                let originOrder = this.searchParams.order;
+                //这里获取的是最开始状态
+                let originFlag = originOrder.split(':')[0];
+                let originSort = originOrder.split(':')[1];
+                //准备一个新的order属性值
+                let newOrder = "";
+                //点击的是综合
+                if (flag == originFlag) {
+                    newOrder = `${originFlag}:${originSort == 'desc' ? 'asc' : 'desc'}`;
+                }
+                else {
+                    //点击的是价格
+                    newOrder = `${flag}:${'desc'}`;
+                };
+                //将新的newOrder赋予searchParams
+                this.searchParams.order = newOrder;
+                //再次发请求
+                this.getData();
+            },
+            //自定义事件获取当前第几页
+            getpageno (pageNo) {
+                //整理服务器参数
+                this.searchParams.pageNo = pageNo;
+                //再次发请求
+                this.getData();
             }
         },
         //数据监听：监听组件实例身上的属性的属性值变化
@@ -251,8 +257,7 @@
                 Object.assign(this.searchParams, this.$route.query, this.$route.params);
                 this.getData();
             }
-        }
-
+        },
     }
 </script>
 

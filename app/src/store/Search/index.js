@@ -1,6 +1,6 @@
 //Search的仓库
 
-import { reqGetList } from '@/api'
+import { reqGetList } from '../../api/index'
 
 const actions = {
   //获取Search数据
@@ -31,6 +31,9 @@ const getters = {
   },
   trademarkList(state) {
     return state.SearchList.trademarkList || []
+  },
+  total(state) {
+    return state.SearchList.total || []
   },
 }
 
