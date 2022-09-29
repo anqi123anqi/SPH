@@ -89,7 +89,6 @@ router.beforeEach(async (to, from, next) => {
 					//发请求获取用户信息以后在放行
 					await store.dispatch('user/getUserInfo');
 					next();
-					console.log(333);
 				} catch (error) {
 					//用户没有信息，还携带token发请求获取用户信息【失败】
 					//token【学生证失效了】
@@ -109,7 +108,6 @@ router.beforeEach(async (to, from, next) => {
 		} else {
 			next();
 		}
-		console.log(444);
 	}
 });
 
