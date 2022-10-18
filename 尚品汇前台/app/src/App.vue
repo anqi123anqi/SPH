@@ -7,6 +7,7 @@
 		<MyFoot v-show="$route.meta.show"></MyFoot>
 		<!-- <MyFoot v-show="$route.path.includes('/home', '/search', '/#')"></MyFoot> -->
 		<!-- <MyFoot v-show="$route.meta.show"></MyFoot> -->
+		
 	</div>
 </template>
 
